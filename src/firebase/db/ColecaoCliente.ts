@@ -1,4 +1,3 @@
-import { collection, DocumentReference, QueryDocumentSnapshot, SnapshotOptions } from "@firebase/firestore";
 import Cliente from "../../core/Cliente";
 import ClienteRepositorio from "../../core/ClienteRepositorio";
 import firebase from "../config";
@@ -12,7 +11,7 @@ export default class ColecaoCliente implements ClienteRepositorio {
                 idade: cliente.idade,
             }
         },
-        fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions ) {
+        fromFirestore(snapshot: firebase.firestore.QueryDocumentSnapshot, options: firebase.firestore.SnapshotOptions) {
             const dados = snapshot.data(options)
             return new Cliente(dados.nome, dados.idade, snapshot.id)
         }
@@ -32,12 +31,12 @@ export default class ColecaoCliente implements ClienteRepositorio {
         return this.colecao().doc(cliente.id).delete()
     }
     async obterTodos(): Promise<Cliente[]> {
-        const query = await this.colecao()
+        const query = await this.colecao().get()
         return query.docs.map(doc => doc.data()) ?? []
     }
 
     private colecao() {
-        return collection(this.colecao(),'cliente').withConverter(this.#conversor)
+        return firebase.firestore().collection('cliente').withConverter(this.#conversor)
     }
 
 }
